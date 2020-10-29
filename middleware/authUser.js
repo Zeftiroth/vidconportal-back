@@ -9,8 +9,8 @@ const auth = (req, res, next) => {
     if (!verified) {
       res.status(401).json({ msg: `verify token failed` });
     }
-    req.admin = verified.id;
-    console.log(req.admin);
+    req.user = verified.id;
+    console.log(req.user);
 
     next();
   } catch (err) {

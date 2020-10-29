@@ -22,11 +22,21 @@ connection.once('open', () => {
 
 const exercisesRouter = require('./routes/exercises.js')
 const usersRouter = require('./routes/user.js')
-const adminRouter = require('./routes/admin.js')
+const adminsRouter = require('./routes/admin.js')
+const toDosRouter = require('./routes/toDo.js')
+const chatsRouter = require('./routes/chat.js')
+const exhibitorsRouter = require('./routes/exhibitor.js')
+const exhibitionsRouter = require('./routes/exhibition')
+const ticketsRouter = require('./routes/ticket.js')
 
 app.use('/exercises', exercisesRouter)
 app.use('/users', usersRouter)
-app.use('/admins', adminRouter)
+app.use('/admins', adminsRouter)
+app.use('/toDos', toDosRouter)
+app.use('/tickets', ticketsRouter)
+app.use('/chats', chatsRouter)
+app.use('/exhibitors', exhibitorsRouter)
+app.use('/exhibitions', exhibitionsRouter)
 
 app.listen(port, () => {
     console.log(`Server is running on port: localhost:${port}`);

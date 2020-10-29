@@ -1,8 +1,12 @@
 const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-let Admin = require("../models/admin.model");
 const auth = require("../middleware/auth");
+let Admin = require("../models/admin.model");
+let Exhibitor = require("../models/exhibitor.model");
+let Meeting = require("../models/meeting.model")
+
+const sendMail = require("../middleware/mailgun");
 
 router.route("/").get((req, res) => {
   Admin.find()
@@ -65,7 +69,7 @@ router.route("/add").post(async (req, res) => {
   const email = req.body.email;
   //   const password = req.body.password
   const password = await bcrypt.hash(req.body.password, 10);
-
+  const department = req.body.department
   const access = req.body.access;
   const profilePicture = req.body.profilePicture;
   //   const duration = Number(req.body.duration);
@@ -76,6 +80,7 @@ router.route("/add").post(async (req, res) => {
     email,
     password,
     access,
+    department,
     profilePicture,
     // duration,
     // date,
@@ -92,6 +97,7 @@ router.get("/checkLoggedIn", auth, async (req, res) => {
   res.json({
     adminName: admin.adminName,
     id: admin._id,
+    access: admin.access
   });
 });
 
@@ -136,6 +142,7 @@ router.route("/update/:id").post((req, res) => {
       admin.email = req.body.email;
       admin.password = req.body.password;
       admin.access = req.body.access;
+      admin.department = req.body.department;
       admin.profilePicture = req.body.profilePicture;
       //   admin.duration = Number(req.body.duration);
       //   admin.date = Date.parse(req.body.date);
@@ -147,5 +154,55 @@ router.route("/update/:id").post((req, res) => {
     })
     .catch((err) => res.status(400).json("Error: " + err));
 });
+
+router.post("/meeting", async (req, res) => {
+  try {
+    let {title, body, sender} = req.body
+    let senderEmail = await Admin.findById(sender).select('email')
+    let receiverEmailObject = await Exhibitor.find().select('email')
+    let receiverEmail = receiverEmailObject.map(email => email.email)
+    let allExhi = await Exhibitor.find().select('_id')
+    console.log(senderEmail.email)
+    console.log(receiverEmail)
+    // console.log(allExhi)
+    let receiver = allExhi.map((e) => e._id)
+    // console.log(receiver)
+    if (! title || !body) {
+      res.status(400).json({error: "no title or body"})
+    }
+    let newMeeting = new Meeting({
+      title: title,
+      body: body,
+      sender: sender,
+      receiver: receiver
+    })
+    sendMail({title, body, senderEmail, receiverEmail})
+
+    
+    const savedMeeting = await newMeeting.save();
+    res.json(savedMeeting);
+  } catch (error) {
+    console.log(error.message)
+    res.status(500).json({err: error.message})
+    
+  }
+});
+
+router.get("/m", async (req, res) => {
+  try {
+    // console.log("try");
+    let meetingList = await Meeting.find().populate('receiver')
+    console.log(meetingList)
+    res.json({msg: "reached"})
+    
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ err: error.message });
+  }
+  // res.json({msg: "yo"})
+})
+
+
+
 
 module.exports = router;

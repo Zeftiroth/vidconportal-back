@@ -4,14 +4,16 @@ const Schema = mongoose.Schema;
 
 const adminSchema = new Schema(
   {
+    
     adminName: {
         firstName: String,
         lastName: String
                 },
-    email: { type: String},
+    email: { type: String, required: true},
     password: { type: String},
     access: { type: String , default: 'admin'},
     profilePicture: { type: Buffer},
+    department: { type: String}
 
 
     
