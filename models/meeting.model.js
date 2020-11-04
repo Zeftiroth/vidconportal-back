@@ -10,10 +10,12 @@ const meetingSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Admin",
     },
-    receiver: [{
-      type: Schema.Types.ObjectId,
-      ref: "Exhibitor",
-    }],
+    receiver: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Exhibitor",
+      },
+    ],
   },
   {
     timestamps: true,

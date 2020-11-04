@@ -2,12 +2,12 @@ const router = require("express").Router();
 let Exhibition = require("../models/exhibition.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const auth = require("../middleware/authUser");
+const auth = require("../middleware/auth");
 
 router.post("/", auth, async (req, res) => {
   try {
     let { name, description, date, ticket, exhibitor } = req.body;
-    if (!description || !name || !date || !ticket || !exhibitor) {
+    if (!description || !name || !date) {
       res.status(400).json({ message: "Not all fields are entered." });
     }
     const newExhibition = new Exhibition({
