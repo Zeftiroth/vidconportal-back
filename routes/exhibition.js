@@ -8,7 +8,8 @@ let Ticket = require("../models/ticket.model");
 let { v4: uuidv4 } = require("uuid");
 let Exhibitor = require("../models/exhibitor.model");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-~router.post("/", auth, async (req, res) => {
+
+router.post("/", auth, async (req, res) => {
   try {
     let { name, description, date, ticket, exhibitor } = req.body;
     if (!description || !name || !date) {
@@ -95,26 +96,72 @@ router.post("/meeting", async (req, res) => {
   }
 });
 
+router.post("/payment", async (req, res) => {
+  const { product, token } = req.body;
+  const idempotencyKey = uuidv4();
+  return stripe.customers
+    .create({
+      email: token.email,
+      source: token.id,
+    })
+    .then((customer) => {
+      stripe.charges.create(
+        {
+          amount: 10 * 100,
+          currency: "myr",
+          customer: customer.id,
+          receipt_email: token.email,
+          description: "test",
+          shipping: {
+            name: token.card.name,
+            address: {
+              line1: token.card.address_line1,
+              line2: token.card.address_line2,
+              city: token.card.address_city,
+              country: token.card.address_country,
+              postal_code: token.card.address_zip,
+            },
+          },
+        },
+        { idempotencyKey }
+      );
+    })
+    .then((result) => {
+      res.status(200).json(result);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+
 router.post("/checkout", async (req, res) => {
   try {
     console.log(req.body);
     let { eventDetails, token, sender } = req.body;
     // console.log(eventDetails);
     // console.log(sender);
-    let customer = await Exhibitor.findById(sender);
-    console.log(customer);
-    let exhibition = await Exhibition.findOneAndUpdate(
-      { id: eventDetails._id },
-      { $push: { exhibitor: sender } }
+    // let customer = await Exhibitor.findById(sender);
+    // console.log(customer);
+    let exhibition = await Exhibition.findByIdAndUpdate(
+      { _id: eventDetails._id },
+      { $push: { exhibitor: sender._id } }
     );
     console.log(exhibition);
 
     const idempotency_key = uuidv4();
+    const customer = await stripe.customers.create(
+      {
+        source: token.id,
+      },
+      {
+        stripeAccount: "{{CONNECTED_STRIPE_ACCOUNT_ID}}",
+      }
+    );
     const charge = await stripe.charges.create(
       {
-        amount: eventDetails.price * 100,
+        amount: 1000,
         currency: "MYR",
-        customer: customer._id,
+        customer: customer,
         receipt_email: token.email,
         description: `Purchased the ${eventDetails.name}`,
         shipping: {
