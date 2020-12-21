@@ -10,6 +10,7 @@ const mg = mailgun({
 const sendMail = async (props) => {
   // const filepath =
   console.log(props);
+  let date = new Date();
   const { title, body } = props;
   const data = {
     //   from: `VidConPortal <${props.senderEmail}>`,
@@ -19,6 +20,7 @@ const sendMail = async (props) => {
     subject: `${title}`,
     text: `${body}`,
     //   attachment: filepath
+    deliverytime: `${date}`,
   };
   mg.messages().send(data, function (error, body) {
     console.log(body);
