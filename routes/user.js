@@ -1,13 +1,13 @@
-const router = require('express').Router();
-let User = require('../models/user.model');
+const router = require("express").Router();
+let User = require("../models/user.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const auth = require("../middleware/authUser");
 
-router.route('/').get((req, res) => {
-    User.find()
-        .then(users => res.json(users))
-        .catch(err => res.status(400).json('Error: ' + err));
+router.route("/").get((req, res) => {
+  User.find()
+    .then((users) => res.json(users))
+    .catch((err) => res.status(400).json("Error: " + err));
 });
 
 // router.route('/add').post((req, res) => {
@@ -17,8 +17,6 @@ router.route('/').get((req, res) => {
 
 //     const newUser = new User({ username, password: passwordHash, email});
 
-    
-
 //     newUser.save()
 //         .then(() => res.json('User added!'))
 //         .catch(err => res.status(400).json('Error: ' + err));
@@ -26,8 +24,8 @@ router.route('/').get((req, res) => {
 
 router.post("/register", async (req, res) => {
   try {
-    let {username, password, email} = req.body.postPackage;
-    console.log(username)
+    let { username, password, email } = req.body.postPackage;
+    console.log(username);
 
     // validate
 
@@ -70,8 +68,8 @@ router.post("/login", async (req, res) => {
     const { email, password } = req.body.postPackage;
 
     if (!email || !password)
-    return res.status(400).json({ msg: "Not all fields have been entered." });
-    
+      return res.status(400).json({ msg: "Not all fields have been entered." });
+
     const user = await User.findOne({ email: email });
     console.log(user);
     if (!user)
@@ -85,7 +83,7 @@ router.post("/login", async (req, res) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
     res.json({
       token,
-      data: user
+      data: user,
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -94,7 +92,9 @@ router.post("/login", async (req, res) => {
 
 router.delete("/delete", auth, async (req, res) => {
   try {
-    const deletedUser = await User.findByIdAndDelete(req.user);
+    console.log(req.query);
+    const deletedUser = await User.findByIdAndDelete(req.query.user);
+
     res.json(deletedUser);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -122,73 +122,61 @@ router.get("/checkLoggedIn", auth, async (req, res) => {
   try {
     const user = await User.findById(req.user);
     res.json({
-      data:user
+      data: user,
     });
-    
   } catch (error) {
-    res.status(500).json({ error: error.message })
-    
+    res.status(500).json({ error: error.message });
   }
-  
 });
 
 router.get("/:id", async (req, res) => {
   try {
-    console.log(req.params.id)
+    console.log(req.params.id);
     const user = await User.findById(req.params.id);
-    res.json(
-      user
-    );
-    
+    res.json(user);
   } catch (error) {
-    res.status(500).json({ error: error.message })
-    
+    res.status(500).json({ error: error.message });
   }
 });
 
-router.route("/update/:id",).post(async (req, res) => {
+router.route("/update/:id").post(async (req, res) => {
   try {
-    let {username, email} = req.body
-    
+    let { username, email } = req.body;
+
     if (!username || !email) {
-      return res.status(400).json({error: "not all fields provided"});
+      return res.status(400).json({ error: "not all fields provided" });
     }
-    
+
     await User.findByIdAndUpdate(
       req.params.id,
       {
         username: username,
         email: email,
       },
-      {new: true},
+      { new: true },
       function (err, docs) {
         if (err) {
           console.log(err.message);
-          res.status(400).json({error: err.message});
+          res.status(400).json({ error: err.message });
         } else {
           console.log("Updated User : ", docs);
-          res.json(docs)
+          res.json(docs);
         }
       }
     );
 
     // let updatedDetails = {
     //   email: email,
-      
+
     //   username: username,
     // }
     // let updateUser = await User.findById(req.params.id);
-    
-    
+
     // const editedUser = await updateUser.save(updatedDetails);
     // res.json(editedUser);
-    
   } catch (error) {
-    res.status(500).json({error: error.message})
-    
+    res.status(500).json({ error: error.message });
   }
-  
 });
-
 
 module.exports = router;

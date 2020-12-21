@@ -6,15 +6,14 @@ const ticketSchema = new Schema(
   {
     description: {
       type: String,
-      required: true,
-      minlength: 1,
+      default: "Thankyou for purchasing a ticket to our event",
     },
 
     owner: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Exhibitor",
     },
-
+    price: { type: Number },
     exhibition: { type: Schema.Types.ObjectId, ref: "Exhibition" },
   },
   {
