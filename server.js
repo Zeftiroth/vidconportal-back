@@ -31,6 +31,7 @@ const exhibitorsRouter = require("./routes/exhibitor.js");
 const exhibitionsRouter = require("./routes/exhibition");
 const ticketsRouter = require("./routes/ticket.js");
 const meetingsRouter = require("./routes/meetings");
+const miscRouter = require("./routes/misc");
 
 app.use("/exercises", exercisesRouter);
 app.use("/users", usersRouter);
@@ -41,6 +42,7 @@ app.use("/chats", chatsRouter);
 app.use("/exhibitors", exhibitorsRouter);
 app.use("/exhibitions", exhibitionsRouter);
 app.use("/meetings", meetingsRouter);
+app.use("/misc", miscRouter);
 
 app.listen(port, () => {
   console.log(`Server is running on port: localhost:${port}`);
