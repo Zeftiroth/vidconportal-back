@@ -15,6 +15,7 @@ router.route('/').get((req, res) => {
 
 router.post("/register", async (req, res) => {
   try {
+    console.log(req.body.postPackage)
     let {
       username,
       password,
@@ -26,8 +27,8 @@ router.post("/register", async (req, res) => {
       office,
       mobile,
       fax,
+      diet,
     } = req.body.postPackage;
-
     // validate
 
     if (!email || !password || !username || !name || !organization || !designation || !address || !office || !mobile || !fax)
@@ -66,6 +67,7 @@ router.post("/register", async (req, res) => {
     res.json(savedExhibitor);
   } catch (err) {
     res.status(500).json({ error: err.message });
+    console.log(err.message);
   }
 });
 
