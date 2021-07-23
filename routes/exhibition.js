@@ -10,7 +10,7 @@ const Exhibitor = require("../models/exhibitor.model");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const sendMail = require("../middleware/mailgun");
 
-router.post("/", auth, async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     let {
       name,
@@ -42,7 +42,7 @@ router.post("/", auth, async (req, res) => {
   }
 });
 
-router.get("/", auth, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     let allExhibition = await Exhibition.find().populate([
       {
@@ -64,7 +64,7 @@ router.get("/", auth, async (req, res) => {
   }
 });
 
-router.get("/:id", auth, async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
     const leExhibition = await Exhibition.findOne({
       _id: req.params.id,
